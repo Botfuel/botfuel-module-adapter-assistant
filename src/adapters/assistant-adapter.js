@@ -119,38 +119,6 @@ class AssistantAdapter extends Adapter {
       }),
       new BrowseCarousel({
         items: items
-        // [
-        //   new BrowseCarouselItem({
-        //     title: 'Title of item 1',
-        //     url: 'https://www.google.com',
-        //     description: 'Description of item 1',
-        //     image: new Image({
-        //       url: 'http://cdn3-www.dogtime.com/assets/uploads/2011/03/puppy-development-460x306.jpg',
-        //       alt: 'Image alternate text',
-        //     }),
-        //     footer: 'Item 1 footer',
-        //   }),
-        //   new BrowseCarouselItem({
-        //     title: 'Title of item 2',
-        //     url: 'https://www.github.com',
-        //     description: 'Description of item 2',
-        //     image: new Image({
-        //       url: 'https://www.thehappycatsite.com/wp-content/uploads/2017/10/best-treats-for-kittens.jpg',
-        //       alt: 'Google Home',
-        //     }),
-        //     footer: 'Item 2 footer',
-        //   }),
-        //   new BrowseCarouselItem({
-        //     title: 'Title of item 2',
-        //     url: 'https://www.microsoft.com',
-        //     description: 'Description of item 2',
-        //     image: new Image({
-        //       url: 'https://i.redd.it/lwnmll3dsx601.jpg',
-        //       alt: 'Google Home',
-        //     }),
-        //     footer: 'Item 2 footer',
-        //   }),
-        // ],
       }));
   }
 
