@@ -11,24 +11,14 @@ const {
   BrowseCarouselItem,
 } = require('actions-on-google');
 
-const url = require('url');
 const { Adapter } = require('botfuel-dialog');
 const {
-  BotfuelAdapter,
   Logger,
-  WebAdapter,
-  PostbackMessage,
   UserImageMessage,
   UserTextMessage,
 } = require('botfuel-dialog');
 
-// absolute urls to static and template folders
 const PORT = process.env.PORT || process.env.BOTFUEL_ADAPTER_PORT || 5000;
-const BOT_URL = process.env.BOT_URL || `http://localhost:${PORT}`;
-const STATIC_BASE_URL = url.resolve(BOT_URL, 'static/');
-const TEMPLATE_BASE_URL = url.resolve(BOT_URL, 'templates/');
-
-let botfuelAdapter = null;
 
 class AssistantAdapter extends Adapter {
 
@@ -44,10 +34,8 @@ class AssistantAdapter extends Adapter {
 
       await super.addUserIfNecessary(conv.user.id);
       const responses = await this.bot.handleMessage(userMessage.toJson(conv.user.id));
-      console.log(`${responses.length} responses`);
       for (const response of responses) {
-        console.log(`message of type ${response.type}`);
-        const resp = this.sendResponse(response, conv);
+        const resp = this.sendResponse(response, conv, conv);
       }
     });
 
@@ -76,29 +64,43 @@ class AssistantAdapter extends Adapter {
     }
   }
 
+  sendMessage(response, conv, payload) {
+    if (payload && payload.options && payload.options.question) {
+      conv.ask(response);
+    } else {
+      conv.close(response);
+    }
+  }
+
   adaptText(payload, conv) {
-    conv.ask(new SimpleResponse({
+    const response = new SimpleResponse({
       speech: payload.value,
       text: payload.value
-    }));
+    });
+
+    this.sendMessage(response, conv, payload);
   }
 
   adaptImage(payload, conv) {
-    conv.ask(new BasicCard({
-      title: '',
-      image: new Image({
-        url: payload.value,
-        alt: '',
-        accessibility_text: ''
-      }),
-    }));
+    console.log(payload);
+    const image = new Image({
+      url: payload.value,
+    });
+    image.accessibility_text = payload.options.accessibility_text;
+    
+    const response = new BasicCard({
+      title: payload.options.accessibility_text,
+      image: image
+    });
+
+    this.sendMessage(response, conv, payload);
   }
 
   // TODO
   adaptCards(payload, conv) {
 
     const items = [];
-    for(const card of payload.value) {
+    for (const card of payload.value) {
       items.push(
         new BrowseCarouselItem({
           title: card.title,
@@ -112,6 +114,7 @@ class AssistantAdapter extends Adapter {
         })
       );
     }
+
     conv.ask(
       new SimpleResponse({
         speech: "",
@@ -123,7 +126,8 @@ class AssistantAdapter extends Adapter {
   }
 
   adaptQuickreplies(payload, conv) {
-    conv.ask(new Suggestions(...payload.value));
+    const response = new Suggestions(...payload.value);
+    this.sendMessage(response, conv, payload);
   }
 }
 
