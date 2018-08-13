@@ -52,6 +52,10 @@ class AssistantAdapter extends Adapter {
       case 'text':
         return this.adaptText(payload, conv);
       case 'quickreplies':
+        if (!payload.options) { 
+          payload.options = {};
+        }
+        payload.options.question = true;
         return this.adaptQuickreplies(payload, conv);
       case 'image':
         return this.adaptImage(payload, conv);
@@ -114,6 +118,7 @@ class AssistantAdapter extends Adapter {
         })
       );
     }
+
 
     conv.ask(
       new SimpleResponse({
