@@ -90,7 +90,7 @@ class AssistantAdapter extends Adapter {
     const image = new Image({
       url: payload.value,
     });
-    image.accessibility_text = payload.options.accessibility_text;
+    image.accessibility_text = payload.options.accessibility_text || '';
     
     const response = new BasicCard({
       title: payload.options.accessibility_text,
