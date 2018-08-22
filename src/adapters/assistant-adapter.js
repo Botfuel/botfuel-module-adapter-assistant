@@ -11,7 +11,8 @@ const {
   BrowseCarouselItem,
 } = require('actions-on-google');
 
-const { Adapter } = require('botfuel-dialog');
+const { Adapter, MessageError } = require('botfuel-dialog');
+
 const {
   Logger,
   UserImageMessage,
@@ -52,7 +53,7 @@ class AssistantAdapter extends Adapter {
       case 'text':
         return this.adaptText(payload, conv);
       case 'quickreplies':
-        if (!payload.options) { 
+        if (!payload.options) {
           payload.options = {};
         }
         payload.options.question = true;
@@ -70,9 +71,9 @@ class AssistantAdapter extends Adapter {
 
   sendMessage(response, conv, payload) {
     if (payload && payload.options && payload.options.question) {
-      conv.ask(response);
+      conv.ask(...response);
     } else {
-      conv.close(response);
+      conv.close(...response);
     }
   }
 
@@ -82,7 +83,7 @@ class AssistantAdapter extends Adapter {
       text: payload.value
     });
 
-    this.sendMessage(response, conv, payload);
+    this.sendMessage([response], conv, payload);
   }
 
   adaptImage(payload, conv) {
@@ -91,48 +92,58 @@ class AssistantAdapter extends Adapter {
       url: payload.value,
     });
     image.accessibility_text = payload.options.accessibility_text || '';
-    
+
     const response = new BasicCard({
-      title: payload.options.accessibility_text,
+      title: payload.options.title || payload.options.accessibility_text || '',
       image: image
     });
 
-    this.sendMessage(response, conv, payload);
+    this.sendMessage([response], conv, payload);
   }
 
   // TODO
   adaptCards(payload, conv) {
-
+    console.log(payload);
     const items = [];
     for (const card of payload.value) {
+
+      const urls = card.buttons.filter(i => i.type === 'link');
+      if (urls.length < 1) {
+        // throw new MessageError({
+        //   name: 'url',
+        //   message: 'Google Assistant card need a valid url'
+        // });
+      }
       items.push(
         new BrowseCarouselItem({
-          title: card.title,
-          url: card.url || '',
+          title: card.title || '',
+          url: urls[0].value || '',
           description: card.description || '',
           image: new Image({
-            url: card.image_url || '',
-            alt: '',
+            url: card.image_url,
+            alt: 'Alternate text',
           }),
           footer: card.footer || '',
         })
       );
     }
 
-
-    conv.ask(
+    const response = [
       new SimpleResponse({
-        speech: "",
-        text: ""
+        speech: payload.options.speech || '',
+        text: payload.options.text || ''
       }),
       new BrowseCarousel({
         items: items
-      }));
+      })
+    ]
+
+    this.sendMessage(response, conv, payload);
   }
 
   adaptQuickreplies(payload, conv) {
     const response = new Suggestions(...payload.value);
-    this.sendMessage(response, conv, payload);
+    this.sendMessage([response], conv, payload);
   }
 }
 
