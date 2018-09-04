@@ -1,6 +1,6 @@
 {
   "name": "botfuel-module-adapter-assistant",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "repository": "https://github.com/Botfuel/botfuel-module-adapter-assistant.git",
   "author": "Olivier Leplus <leplus.olivier@gmail.com>",
   "description": "Google Assistant botfuel adapter",
